@@ -11,12 +11,20 @@ from users.models import MyUser
 from .models import Message, Conversation
 from .serializers import MessageSerializer
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
+        # logger.info(f"WebSocket connect attempt by user: {self.scope['user']}")
         print("here")
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
+
+        print(f'room_name: {self.room_name}')
+        print(f'room_group_name: {self.room_group_name}')
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -34,6 +42,14 @@ class ChatConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
+
+        if self.scope["user"].is_anonymous:
+            print(self.scope["user"])
+            self.send(text_data=json.dumps({
+                "error": "Authentication required. Better authorize in format: Token token_url"
+            }))
+            return
+
         # parse the json data into dictionary object
         text_data_json = json.loads(text_data)
 
@@ -60,6 +76,9 @@ class ChatConsumer(WebsocketConsumer):
                 conversation_id=conversation,
             )
         else:
+            print(sender)
+            print(message)
+            print(conversation)
             _message = Message.objects.create(
                 sender=sender,
                 text=message,

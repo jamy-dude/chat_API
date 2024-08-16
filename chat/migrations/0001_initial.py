@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('text', models.CharField(max_length=200)),
                 ('attachment', models.FileField(blank=True, upload_to='')),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('conversation_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='chats.conversation')),
+                ('conversation_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='chat.conversation')),
                 ('sender', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='message_sender', to=settings.AUTH_USER_MODEL)),
             ],
             options={
